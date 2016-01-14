@@ -9,7 +9,7 @@ import re
 folder="metrics/"
 cpu_file="cpu_perc.csv"
 memory_file="memory_perc.csv"
-io_file="io_perc.csv"
+io_file="io.csv"
 disk_write_file="disk_write.csv"
 disk_read_file="disk_read.csv"
 
@@ -17,9 +17,7 @@ def cpu(pid, ps_name):
     '''This method returns the current CPU usage in %'''
     cmd="top -p "+pid.strip()+" -b -n 1 | grep -w "+ps_name+" | awk '{print $9}'"
     output=subprocess.check_output(["sh", "-c", cmd])
-    print repr( output)
     value = re.sub(',', '.', output.strip())
-    print repr(value)
     writefile(cpu_file, value, "a")
     return "%4.2f" %float(value)
 
@@ -55,27 +53,26 @@ def dsk():
         z=float(y)/float(x)*100
     return "%2.2f" %z
 
-def disk_write(pid):
-    '''This method returns the current DISK WRITE speed in KB'''
-    cmd="iotop -p "+pid.strip()+" -n 1 -k | awk '{print $8}'"
+def disk():
+    '''This method returns the current DISK READ/WRITE speed in KB/S'''
+    cmd="dstat -d 1 1 | awk '{print $1} {print $2}'"
     output=subprocess.check_output(["sudo", "sh", "-c", cmd])
-    value=formatResult(output)
+    out=output.split('\n')[-3:-1]
+    valueR=formatResult(out[0])
+    valueS=formatResult(out[1])
+    value=valueR+valueS
     writefile(disk_write_file, value, "a")
     return "%4.2f" %float(value)
 
-def disk_read(pid):
-    '''This method returns the current DISK READ speed in KB'''
-    cmd="iotop -p "+pid.strip()+" -n 1 -k | awk '{print $4}'"
-    output=subprocess.check_output(["sudo", "sh", "-c", cmd])
-    value=formatResult(output)
-    writefile(disk_read_file, value, "a")
-    return "%4.2f" %float(value)
-
-def io(pid):
-    '''This method returns the current I/O usage in %'''
-    cmd="iotop -p "+pid.strip()+" -n 1 | awk '{print $10}'"
-    output=subprocess.check_output(["sudo", "sh", "-c", cmd])
-    value=formatResult(output)
+def io():
+    '''This method returns the current I/O usage in KB/S'''
+    # Sent/Received
+    cmd="dstat -n 1 1 | awk '{print $1} {print $2}'"
+    output=subprocess.check_output(["sh", "-c", cmd])
+    out=output.split('\n')[-3:-1]
+    valueR=formatResult(out[0])
+    valueS=formatResult(out[1])
+    value=valueR+valueS
     writefile(io_file, value, "a")
     return "%4.2f" %float(value)
 
@@ -83,14 +80,14 @@ def writefile(file_name, data, options):
     with open(folder+file_name, options) as myfile:
         myfile.write(str(data)+";")
 
-def formatResult(output):
-    [out1,out2]=output.split('.')
-    i=0 # num digit
-    if type(out1[-2:])!=int:
-        i=1
-    elif type(out1[-3:])!=int:
-        i=2
+def formatResult(out):
+    if out=='0':
+        return int(out)
     else:
-        i=3
-    return out1[-i:]+'.'+out2[:2]
-
+        value=int(out[:-1])
+        unit=out[-1:]
+        if unit=='B':
+            value=value/1000
+        elif unit=='M':
+            value=value*1000
+    return value
