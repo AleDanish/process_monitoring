@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+#     Author: Alessandro Zanni,
+#     URL: https://github.com/AleDanish
+
 import matplotlib.pyplot as plt
 import matplotlib
 import data

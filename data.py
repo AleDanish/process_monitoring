@@ -1,3 +1,6 @@
+#     Author: Alessandro Zanni,
+#     URL: https://github.com/AleDanish
+
 import psutil
 import time
 import subprocess
