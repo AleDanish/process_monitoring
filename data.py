@@ -1,4 +1,4 @@
-#     Author: Alessandro Zanni,
+#     Author: Alessandro Zanni
 #     URL: https://github.com/AleDanish
 
 import psutil
@@ -9,9 +9,8 @@ import re
 folder="metrics/"
 cpu_file="cpu_perc.csv"
 memory_file="memory_perc.csv"
+disk_file="disk.csv"
 io_file="io.csv"
-disk_write_file="disk_write.csv"
-disk_read_file="disk_read.csv"
 
 def cpu(pid, ps_name):
     '''This method returns the current CPU usage in %'''
@@ -61,7 +60,7 @@ def disk():
     valueR=formatResult(out[0])
     valueS=formatResult(out[1])
     value=valueR+valueS
-    writefile(disk_write_file, value, "a")
+    writefile(disk_file, value, "a")
     return "%4.2f" %float(value)
 
 def io():
