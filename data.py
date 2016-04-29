@@ -18,7 +18,10 @@ def cpu(pid, ps_name):
     output=subprocess.check_output(["sh", "-c", cmd])
     value = re.sub(',', '.', output.strip())
     writefile(cpu_file, value, "a")
-    return "%4.2f" %float(value)
+    try:
+        return "%4.2f" %float(value)
+    except ValueError:
+        return "0"
 
 def cpu_sys(pid):
     '''This method returns the current CPU usage by the system'''
@@ -37,7 +40,10 @@ def mem(pid, ps_name):
     output=subprocess.check_output(["sh", "-c", cmd])
     value = re.sub(',', '.', output.strip())
     writefile(memory_file, value, "a")
-    return "%4.2f" %float(value)
+    try:
+        return "%4.2f" %float(value)
+    except:
+        return "0"
 
 def dsk():
     '''This method returns the current DISK usage'''
